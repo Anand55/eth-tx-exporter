@@ -2,13 +2,13 @@ import os
 import csv
 import threading
 from concurrent.futures import ThreadPoolExecutor
-from fetcher import (
+from src.fetcher import (
     fetch_normal_transactions,
     fetch_internal_transactions,
     fetch_erc20_transfers,
     fetch_erc721_transfers
 )
-from parser import (
+from src.parser import (
     parse_normal_tx,
     parse_internal_tx,
     parse_erc20_tx,

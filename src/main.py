@@ -1,5 +1,5 @@
 import argparse
-from concurrent_pipeline import run_concurrent_pipeline
+from src.concurrent_pipeline import run_concurrent_pipeline
 
 def main():
     parser = argparse.ArgumentParser(description="ETH Exporter - Fully Concurrent")

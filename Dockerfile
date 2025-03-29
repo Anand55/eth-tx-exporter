@@ -1,12 +1,11 @@
-# Use official slim Python image
+# Dockerfile
+
 FROM python:3.11-slim
 
 WORKDIR /app
 
 COPY . .
 
-RUN pip install --no-cache-dir requests python-dotenv
+RUN pip install --no-cache-dir -r requirements.txt
 
-ENV ETHERSCAN_API_KEY=your_key_here
-
-CMD ["python", "src/main.py"]
+ENTRYPOINT ["python", "-m", "src.main"]
