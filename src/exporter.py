@@ -1,39 +1,38 @@
-# src/exporter.py
-
 import csv
 import os
 
-def export_to_csv(transactions, output_path="data/output.csv"):
-    """Export parsed transactions to a CSV file."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+def export_to_csv_streaming(generator_list, output_path="data/output.csv", buffer_size=500):
+    """
+    Streams transactions to CSV using buffered batch writes.
+    """
+    os.makedirs("data", exist_ok=True)
 
-    headers = [
-        "Transaction Hash",
-        "Date & Time",
-        "From Address",
-        "To Address",
-        "Transaction Type",
-        "Asset Contract Address",
-        "Asset Symbol / Name",
-        "Token ID",
-        "Value / Amount",
-        "Gas Fee (ETH)"
+    fieldnames = [
+        "hash", "timestamp", "from", "to", "type",
+        "contract", "symbol", "token_id", "amount", "gas"
     ]
 
-    with open(output_path, mode="w", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=headers)
+    tx_count = 0
+    buffer = []
+
+    with open(output_path, mode="w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
 
-        for tx in transactions:
-            writer.writerow({
-                "Transaction Hash": tx.get("hash"),
-                "Date & Time": tx.get("timestamp"),
-                "From Address": tx.get("from"),
-                "To Address": tx.get("to"),
-                "Transaction Type": tx.get("type"),
-                "Asset Contract Address": tx.get("contract"),
-                "Asset Symbol / Name": tx.get("symbol"),
-                "Token ID": tx.get("token_id"),
-                "Value / Amount": tx.get("amount"),
-                "Gas Fee (ETH)": tx.get("gas")
-            })
+        for generator in generator_list:
+            for tx in generator:
+                buffer.append(tx)
+                tx_count += 1
+
+                if len(buffer) >= buffer_size:
+                    writer.writerows(buffer)
+                    buffer.clear()
+
+        # Write any remaining txs
+        if buffer:
+            writer.writerows(buffer)
+
+    if tx_count == 0:
+        print("⚠️ No transactions found for this wallet.")
+    else:
+        print("✅ Exported {} transactions.".format(tx_count))
